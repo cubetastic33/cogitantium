@@ -1,0 +1,146 @@
+{% extends 'layout' %}
+
+{% block title %}Cogitantium | Profile{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/styles/profile.css">
+{% endblock %}
+
+{% block body %}
+<div class="dialogBG"></div>
+<div id="changeClassDialog" class="dialog">
+	<div class="header">
+		Change Class
+	</div>
+	<div class="body">
+		<div class="formInput">
+			<i class="material-icons">school</i>
+			<select id="class" name="class">
+				<option value="X A1" selected>X A1</option>
+				<option value="X A2">X A2</option>
+				<option value="X B">X B</option>
+				<option value="NOTA">NOTA</option>
+			</select>
+			<label for="class">Class</label>
+		</div>
+	</div>
+	<div class="footer">
+		<button class="textButton">Cancel</button>
+		<button>Change</button>
+	</div>
+</div>
+<div id="changePasswordDialog" class="dialog">
+	<div class="header">
+		Change Password
+	</div>
+	<div class="body">
+		<div class="formInput">
+			<i class="material-icons">lock</i>
+			<input type="password" id="oldPassword" autocomplete="off">
+			<label for="oldPassword">Old Password</label>
+		</div>
+		<br>
+		<div class="formInput">
+			<i class="material-icons">lock</i>
+			<input type="password" id="newPassword" autocomplete="off">
+			<label for="newPassword">New Password</label>
+		</div>
+	</div>
+	<div class="footer">
+		<button class="textButton">Cancel</button>
+		<button>Change</button>
+	</div>
+</div>
+<div id="changeEmailDialog" class="dialog">
+	<div class="header">
+		Change Email
+	</div>
+	<div class="body">
+		<div class="formInput">
+			<i class="material-icons">mail</i>
+			<input type="email" id="email" autocomplete="off">
+			<label for="email">Email</label>
+		</div>
+	</div>
+	<div class="footer">
+		<button class="textButton">Cancel</button>
+		<button>Change</button>
+	</div>
+</div>
+<div id="changePrivateDialog" class="dialog">
+	<div class="header">
+		Change Privacy Status
+	</div>
+	<div class="body">
+		<div class="checkbox">
+			<input type="checkbox" id="private">
+			<label for="private">Private</label>
+		</div>
+	</div>
+	<div class="footer">
+		<button class="textButton">Cancel</button>
+		<button>Change</button>
+	</div>
+</div>
+<div id="profileDiv">
+    <div id="profileHeader">
+        <img src="{{ user_details[4] | safe }}" id="profilePicture" alt="profile picture">
+        <div class="infoColumn">
+            <div><div>Name:</div> <div class="name">{{ user_details[1] }}</div></div>
+            <div><div>Class:</div> <div class="class">{{ user_details[2] }}</div></div>
+	        <button id="signoutButton">Sign Out</button>
+        </div>
+    </div>
+    <input type="file" id="updateProfilePic">
+    <div id="profileBody">
+        <ul>
+            <li>
+                <i class="material-icons" aria-hidden="true">account_circle</i>
+                <div>
+                    Name:<div class="name">{{ user_details[1] }}</div>
+                </div>
+            </li>
+	        <li>
+                <i class="material-icons" aria-hidden="true">school</i>
+                <div>
+                    Class:<div class="class">{{ user_details[2] }}</div><i class="material-icons">edit</i>
+                </div>
+            </li>
+            <li>
+                <i class="material-icons" aria-hidden="true">lock</i>
+                <div>
+                    Password:<div class="password">•••••••••</div><i class="material-icons">lock</i>
+                </div>
+            </li>
+            <li>
+                <i class="material-icons" aria-hidden="true">email</i>
+                <div>
+                    Email:<div class="email">{{ user_details[3] }}</div><i class="material-icons">edit</i>
+                </div>
+            </li>
+            <li>
+                <i class="material-icons" aria-hidden="true">screen_lock_landscape</i>
+                <div>
+                    Private:<div class="private">{{ user_details[5] }}</div><i class="material-icons">edit</i>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+{{ value | safe }}
+<script>
+var userDetails = {
+	'id': {{ user_details[0] }},
+	'name': '{{ user_details[1] }}',
+	'class': '{{ user_details[2] }}',
+	'email': '{{ user_details[3] }}',
+	'profilePic': '{{ user_details[4] | safe }}',
+	'private': {{ user_details[5] }}
+};
+$('#private').prop('checked', {{ user_details[5] }});
+</script>
+<script src="/scripts/profile.js"></script>
+{% endblock %}

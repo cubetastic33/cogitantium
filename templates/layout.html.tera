@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="description" content="Cogitantium, Latin for thoughtful, is how you'll be while reading the reviews in this site">
+	<title>{% block title %}Cogitantium{% endblock %}</title>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="stylesheet" href="/styles/main.css">
+	{% block head %}{% endblock %}
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-135219619-1"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'UA-135219619-1');
+	</script>
+</head>
+<body>
+	<header>
+		<h1><a href="/" class="exception">Cogitantium</a></h1>
+		<a href="/profile" id="profile">
+			{% if user_details[0] == "x" %}
+			<i class="material-icons">account_circle</i>
+			{% else %}
+			<img src="{{ user_details[4] }}" alt="profile pic">
+			{% endif %}
+		</a>
+	</header>
+	<main>
+		{% block body %}
+		{% endblock %}
+	</main>
+	<div id="toast"></div>
+	<footer>
+		© 12019 HE | Created by Aravindan
+	</footer>
+</body>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+function showToast(message, duration = 2000) {
+	$('#toast').text(message);
+	$('#toast').slideDown(200, () => {
+		setTimeout(() => {
+			$('#toast').slideUp(200);
+		}, duration);
+	});
+}
+</script>
+{% block javascript %}
+{% endblock %}
+</html>

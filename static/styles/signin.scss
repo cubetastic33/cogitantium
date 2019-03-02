@@ -1,0 +1,209 @@
+/*
+	Variables
+*/
+
+$theme-primary: #8c00dd;
+$theme-secondary: #212121;
+$theme-on-primary: #FFFFFF;
+$theme-on-secondary: #FFE082;
+$error: #EF5350;
+
+body {
+	background-color: $theme-primary;
+	background-image: url(/images/textures/groovepaper.png);
+	margin: 0;
+	padding: 0;
+}
+
+form {
+	display: table-cell;
+	vertical-align: middle;
+	background-color: $theme-secondary;
+	background-image: url(/images/textures/brushed-alum-dark.png);
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	position: relative;
+	width: 50vw;
+	top: 50vh;
+	left: 50vw;
+	transform: translate(-50%, -50%);
+
+	#formHeader {
+		text-align: center;
+		background-color: #000000;
+		color: $theme-on-primary;
+		padding: 1px;
+		border-radius: 3px 3px 0 0;
+
+		h1 {
+			font-size: 1.75rem;
+		}
+	}
+
+	#formBody {
+		padding: 2rem 1rem;
+		color: #FFFFFF;
+	}
+
+	#email ~ .helper-text {
+		display: initial;
+		color: #AFAFAF;
+		font-size: 0.75rem;
+		position: absolute;
+		top: 3.2rem;
+		left: 2.5rem;
+	}
+}
+
+@media only screen and (max-width: 720px) {
+	form {
+		width: 70vw;
+	}
+}
+
+@media only screen and (max-width: 460px) {
+	form {
+		width: 90vw;
+	}
+}
+
+@media only screen and (max-width: 340px) {
+	form {
+		width: 100%;
+	}
+}
+
+@media only screen and (max-height: 420px) {
+	form {
+		top: 0;
+		transform: translateX(-50%);
+	}
+}
+
+/*
+	Components
+*/
+
+form {
+	.formInput {
+		position: relative;
+		font-family: Roboto;
+
+		i {
+			position: absolute;
+			top: 0.8rem;
+		}
+
+		.error-icon, .warning-icon, .helper-text {
+			display: none;
+		}
+
+		label {
+			background-color: $theme-secondary;
+			background-image: url('/images/textures/brushed-alum-dark.png');
+			color: #AFAFAF;
+			cursor: text;
+			position: absolute;
+			top: 1rem;
+			left: 3rem;
+		}
+
+		input, select {
+			appearance: none;
+			-moz-appearance: none;
+			-webkit-appearance: none;
+			background-color: #00000000;
+			border: 1pt solid #AFAFAF;
+			border-radius: 4px;
+			color: #AFAFAF;
+			margin-left: 2rem;
+			padding: 1rem;
+			width: calc(100% - 6rem);
+		}
+
+		select {
+			width: calc(100% - 4rem);
+		}
+
+		input[type="number"] {
+		    -moz-appearance: textfield;
+		}
+
+		input[type="number"]:hover {
+			-moz-appearance: number-input;
+		}
+
+		input:hover, select:hover {
+			border-color: #FFFFFF;
+		}
+
+		input:focus, select:focus {
+			border: 2px solid #00C853;
+			caret-color: #00C853;
+			color: #FFFFFF;
+			outline: none;
+			outline-offset: 0;
+			padding: calc(1rem - 1px);
+
+		}
+
+		input:focus + label, select:focus + label {
+			color: #00C853;
+		}
+	}
+
+	.formInput.error input, .formInput input:invalid {
+		border-color: $error;
+		-webkit-box-shadow: none;
+		box-shadow: none;
+
+		+ label {
+			color: $error;
+		}
+
+		~ .error-icon {
+			display: initial;
+			color: $error;
+			position: absolute;
+			top: 1rem;
+			right: 3rem;
+		}
+
+		~ .helper-text {
+			display: initial;
+			color: $error;
+			font-size: 0.75rem;
+			position: absolute;
+			top: 3.2rem;
+			left: 2rem;
+		}
+	}
+
+	.formInput.error input:focus, .formInput input:invalid:focus {
+		border-color: $error;
+		caret-color: $error;
+
+		+ label {
+			color: $error;
+		}
+	}
+
+	.buttons {
+		display: flex;
+		justify-content: flex-end;
+		padding-right: 2rem;
+
+		button:first-child {
+			margin-right: 5px;
+		}
+	}
+
+	p {
+		margin-left: 2rem;
+
+		a {
+			color: #FFFFFF !important;
+		}
+	}
+}

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+	      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Cogitantium | Sign Up</title>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="stylesheet" href="styles/main.css">
+	<link rel="stylesheet" href="styles/signin.css">
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-135219619-1"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'UA-135219619-1');
+	</script>
+</head>
+<body>
+	<form id="signUpForm">
+		<div id="formHeader">
+			<h1>Cogitantium | Sign Up</h1>
+		</div>
+		<div id="formBody">
+			<div class="formInput">
+				<i class="material-icons">school</i>
+				<select id="class" name="class">
+					<option value="X A1" selected>X A1</option>
+					<option value="X A2">X A2</option>
+					<option value="X B">X B</option>
+					<option value="NOTA">NOTA</option>
+				</select>
+				<label for="class">Class</label>
+			</div><br><br>
+			<div class="formInput">
+				<i class="material-icons">account_circle</i>
+				<input type="text" id="name" autocomplete="off">
+				<label for="name">Name</label>
+				<div class="helper-text"></div>
+			</div><br><br>
+			<div class="formInput">
+				<i class="material-icons">mail</i>
+				<input type="email" id="email" name="email" autocomplete="off">
+				<label for="email">Email</label>
+				<div class="helper-text">(optional)</div>
+			</div><br><br>
+			<div class="buttons">
+		        <button type="submit" id="signupButton" class="unelevatedButton">Sign up</button>
+			</div>
+			<p>Already registered with cogitantium? <a href="/">Sign in</a> now!</p>
+		</div>
+	</form>
+	<div id="toast"></div>
+</body>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+function showToast(message, duration = 2000) {
+	$('#toast').text(message);
+	$('#toast').slideDown(200, () => {
+		setTimeout(() => {
+			$('#toast').slideUp(200);
+		}, duration);
+	});
+}
+
+$('.formInput input, .formInput select').each(function() {
+	if ($(this).val() !== '') {
+		$('#'+this.id+' + label').animate({
+			'fontSize': '0.8rem',
+			'top': '-0.7rem',
+			'padding': '0.25rem'
+		}, 80);
+	}
+	$(this).focusin(() => {
+		$('#'+this.id+' + label').animate({
+			'fontSize': '0.8rem',
+			'top': '-0.7rem',
+			'padding': '0.25rem'
+		}, 80);
+	});
+	$(this).focusout(function() {
+		if ($(this).val() === '') {
+			$('#'+this.id+' + label').animate({
+				'fontSize': '1rem',
+				'top': '1rem',
+				'padding': 0
+			}, 80);
+		}
+	});
+});
+
+$('form').submit((e) => {
+	e.preventDefault();
+	$('#signupButton').prop('disabled', true);
+	showToast('Please wait...', 5000);
+	$.ajax({
+		type: 'POST',
+		url: '/signup',
+		data: {
+			class: $('#class').val(),
+			name: $('#name').val(),
+			email: $('#email').val()
+		},
+		success: (result) => {
+			console.log(result);
+			$('#signupButton').prop('disabled', false);
+			if (result === 'Success') {
+				showToast('success!', 10000);
+				window.location.href = '/';
+			} else if (result === 'Error: Name already registered') {
+				$('#name').parent().attr('class', 'formInput error');
+				$('#name ~ .helper-text').text('This name is already registered');
+				showToast('Errors in form', 50000);
+			} else if (result === 'Error: Name has to be more than 3 characters long') {
+				$('#name').parent().attr('class', 'formInput error');
+				$('#name ~ .helper-text').text('This name has to be more than 3 characters');
+				showToast('Errors in form', 5000);
+			} else {
+				$('#formBody > .helper-text').css({'display': 'block', 'color': '#e53935'});
+				showToast(result, 10000);
+			}
+		}
+	});
+});
+</script>
+</html>

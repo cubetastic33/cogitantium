@@ -1,0 +1,64 @@
+{% extends 'layout' %}
+
+{% block body %}
+<style>
+main {
+	padding: 1px;
+}
+
+p {
+	padding: 0 5vw;
+}
+</style>
+<p>
+	Welcome to cogitantium! Here, you can review other people so they know
+	what you think of them. If you don't want others seeing what people say
+	about you, go ahead and make your profile private <a href="/profile">here</a>.
+	You can also choose to give anonymous reviews as well as normal reviews.
+	Feedback matters! If you're facing any issues with the site, please contact
+	Aravindan. Click <a href="/reviews">here</a> to go to the reviews page.
+</p>
+
+<ul id="timetable">
+	<li>
+		<div>Date</div>
+		<div>Day</div>
+		<div>Exam</div>
+	</li>
+	<li>
+		<div>12019 - 3 - 5</div>
+		<div>Tuesday</div>
+		<div>Tamil</div>
+	</li>
+	<li>
+		<div>12019 - 3 - 7</div>
+		<div>Thursday</div>
+		<div>Maths</div>
+	</li>
+	<li>
+		<div>12019 - 3 - 9</div>
+		<div>Saturday</div>
+		<div>French</div>
+	</li>
+	<li>
+		<div>12019 - 3 - 13</div>
+		<div>Wednesday</div>
+		<div>Science</div>
+	</li>
+	<li>
+		<div>12019 - 3 - 19</div>
+		<div>Tuesday</div>
+		<div>Hindi</div>
+	</li>
+	<li>
+		<div>12019 - 3 - 23</div>
+		<div>Saturday</div>
+		<div>English</div>
+	</li>
+	<li>
+		<div>12019 - 3 - 29</div>
+		<div>Friday</div>
+		<div>Social</div>
+	</li>
+</ul>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'layout' %}
+
+{% block title %}Cogitantium | Reviews{% endblock %}
+
+{% block body %}
+<p id="filters">
+	Filters:
+	<div class="filter">
+		<input type="checkbox" id="A1">
+		<label for="A1">X A<sub>1</sub></label>
+	</div>
+	<div class="filter">
+		<input type="checkbox" id="A2">
+		<label for="A2">X A<sub>2</sub></label>
+	</div>
+	<div class="filter">
+		<input type="checkbox" id="B">
+		<label for="B">X B</label>
+	</div>
+	<div class="filter">
+		<input type="checkbox" id="me" checked>
+		<label for="me">Me</label>
+	</div>
+</p>
+<div id="reviews">
+	<div id="newReview">
+		<div class="header">
+			<label for="about">About</label>
+			<input type="text" id="about">
+			<label for="about_class">of</label>
+			<select id="about_class">
+				<option value="X A1">X A1</option>
+				<option value="X A2">X A2</option>
+				<option value="X B">X B</option>
+			</select>
+			<div class="helper-text success"></div>
+		</div>
+		<textarea id="content" rows="8"></textarea><br>
+		<label for="anonymous">Anonymous</label>
+		<input type="checkbox" id="anonymous"><br>
+		<button>Post Review</button>
+	</div>
+	{% for review in reviews %}
+		<div class="review {{ review.about_class }}{% if review.about == user_details[1] and review.about_class == user_details[2] %} me{% endif %}">
+			<div class="header">
+				<div>
+					About {{ review.about }} of {{ review.about_class }}
+				</div>
+				<div class="time">{{ review.time }}</div>
+			</div>
+			<p>
+				{{ review.content }}
+			</p>
+			{% if review.by_user[1] == "no" %}
+			<div class="anonymousUser">Anonymous</div>
+			{% else %}
+			<div class="byUser">
+				<img src="{{ review.by_user[4] }}" alt="profile pic">
+				<div>
+					<div class="name">{{ review.by_user[1] }}</div>
+					<div class="class">{{ review.by_user[2] }}</div>
+					<div class="email">{{ review.by_user[3] }}</div>
+				</div>
+			</div>
+			{% endif %}
+		</div>
+	{% endfor %}
+</div>
+{% endblock %}
+
+{% block javascript %}
+{{ value | safe }}
+<script>
+$('body').attr('id', 'reviewsBody');
+var userDetails = {
+	'id': {{ user_details[0] }},
+	'name': '{{ user_details[1] }}',
+	'class': '{{ user_details[2] }}',
+	'email': '{{ user_details[3] }}',
+	'profilePic': '{{ user_details[4] | safe }}',
+};
+</script>
+<script src="scripts/reviews.js"></script>
+{% endblock %}
