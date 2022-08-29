@@ -12,14 +12,15 @@ use self::{
 use super::{
     Review, ReviewDetails, SigninDetails, SignupDetails, UpdateProfileDetails, UserDetails,
 };
-use postgres::Connection;
+use postgres::Client;
 use rocket::{
     http::{Cookie, Cookies},
     request::Form,
 };
+use std::env;
 
 // Function to check if the name is available
-pub fn name_available(conn: &Connection, name: &str) -> bool {
+pub fn name_available(conn: &mut Client, name: &str) -> bool {
     if name.len() == 0 {
         // The name has length 0
         return false;
@@ -44,18 +45,25 @@ private BOOL NOT NULL
 */
 
 // Function to create a user with the given details if they're valid
-pub fn create_user(conn: &Connection, user_details: Form<SignupDetails>) -> String {
+pub fn create_user(conn: &mut Client, user_details: Form<SignupDetails>) -> String {
     if user_details.name.len() > 3 {
         // Proceed if name is valid
         if user_details.class.len() == 0 {
             return String::from("Error: No class specified");
         }
-        if name_available(&conn, &user_details.name) == false {
+        if name_available(conn, &user_details.name) == false {
             return String::from("Error: Name already registered");
         }
         // Generate salt using a CSPRNG
         let salt = Hc128Rng::from_entropy().gen::<u32>();
-        let password_hash = hash(&format!("{}<default password>", salt), DEFAULT_COST).unwrap();
+        let password_hash = hash(
+                &format!(
+                    "{}{}",
+                    salt,
+                    env::var("DEFAULT_PASSWORD").expect("Env var DEFAULT_PASSWORD not found")
+                ),
+                DEFAULT_COST
+            ).unwrap();
         println!("{}", password_hash);
         if let Err(e) = conn.query(&format!("INSERT INTO users VALUES(
             DEFAULT, $1, $2, $3, {}, $4,
@@ -72,7 +80,7 @@ pub fn create_user(conn: &Connection, user_details: Form<SignupDetails>) -> Stri
 
 // Function to check if specified credentials match
 pub fn signin_user(
-    conn: &Connection,
+    conn: &mut Client,
     user_details: Form<SigninDetails>,
     mut cookies: Cookies,
 ) -> String {
@@ -86,8 +94,8 @@ pub fn signin_user(
             .unwrap();
         if rows.is_empty() == false {
             // Compare passwords if name exists
-            let password_hash: String = rows.get(0).get(0);
-            let salt: i64 = rows.get(0).get(1);
+            let password_hash: String = rows.get(0).unwrap().get(0);
+            let salt: i64 = rows.get(0).unwrap().get(1);
             if verify(
                 &format!("{}{}", salt, user_details.password),
                 &password_hash.trim(),
@@ -108,7 +116,7 @@ pub fn signin_user(
 }
 
 // Function to get user's details if user is signed in
-pub fn get_user_details(conn: &Connection, cookies: &mut Cookies) -> String {
+pub fn get_user_details(conn: &mut Client, cookies: &mut Cookies) -> String {
     if let Some(name) = cookies.get_private("name") {
         // If the name cookie exists
         if let Some(password_hash) = cookies.get_private("hash") {
@@ -117,13 +125,13 @@ pub fn get_user_details(conn: &Connection, cookies: &mut Cookies) -> String {
                 .query("SELECT * FROM users WHERE name = $1", &[&name.value()])
                 .unwrap();
             // Read all the values to variables
-            let id: i32 = rows.get(0).get(0);
-            let name: String = rows.get(0).get(1);
-            let class: String = rows.get(0).get(2);
-            let password: String = rows.get(0).get(3);
-            let email: String = rows.get(0).get(5);
-            let profile_pic: String = rows.get(0).get(6);
-            let private: bool = rows.get(0).get(7);
+            let id: i32 = rows.get(0).unwrap().get(0);
+            let name: String = rows.get(0).unwrap().get(1);
+            let class: String = rows.get(0).unwrap().get(2);
+            let password: String = rows.get(0).unwrap().get(3);
+            let email: String = rows.get(0).unwrap().get(5);
+            let profile_pic: String = rows.get(0).unwrap().get(6);
+            let private: bool = rows.get(0).unwrap().get(7);
 
             if password_hash.value() == password.trim() {
                 // Return the details separated with '|'
@@ -138,7 +146,7 @@ pub fn get_user_details(conn: &Connection, cookies: &mut Cookies) -> String {
 }
 
 pub fn check_registered_status(
-    conn: &Connection,
+    conn: &mut Client,
     user_details: Form<UserDetails>,
     cookies: &mut Cookies,
 ) -> String {
@@ -149,7 +157,7 @@ pub fn check_registered_status(
             let rows = conn
                 .query("SELECT * FROM users WHERE name = $1", &[&name.value()])
                 .unwrap();
-            let password: String = rows.get(0).get(3);
+            let password: String = rows.get(0).unwrap().get(3);
 
             if password_hash.value() == password.trim() {
                 // The user is signed in
@@ -187,7 +195,7 @@ by_user VARCHAR (50) NOT NULL
 */
 
 pub fn post_review(
-    conn: &Connection,
+    conn: &mut Client,
     review_details: Form<ReviewDetails>,
     mut cookies: Cookies,
 ) -> String {
@@ -198,7 +206,7 @@ pub fn post_review(
             let rows = conn
                 .query("SELECT * FROM users WHERE name = $1", &[&name.value()])
                 .unwrap();
-            let password: String = rows.get(0).get(3);
+            let password: String = rows.get(0).unwrap().get(3);
 
             if password_hash.value() == password.trim() {
                 // The user is signed in
@@ -228,7 +236,7 @@ pub fn post_review(
     String::from("Signed out")
 }
 
-pub fn get_reviews(conn: &Connection, cookies: &mut Cookies) -> Option<Vec<Review>> {
+pub fn get_reviews(conn: &mut Client, cookies: &mut Cookies) -> Option<Vec<Review>> {
     if let Some(name) = cookies.get_private("name") {
         // If the name cookie exists
         if let Some(password_hash) = cookies.get_private("hash") {
@@ -236,7 +244,7 @@ pub fn get_reviews(conn: &Connection, cookies: &mut Cookies) -> Option<Vec<Revie
             let rows = conn
                 .query("SELECT * FROM users WHERE name = $1", &[&name.value()])
                 .unwrap();
-            let password: String = rows.get(0).get(3);
+            let password: String = rows.get(0)?.get(3);
 
             if password_hash.value() == password.trim() {
                 // The user is signed in
@@ -256,7 +264,7 @@ pub fn get_reviews(conn: &Connection, cookies: &mut Cookies) -> Option<Vec<Revie
                             )
                             .unwrap();
                         if !about_user.is_empty() {
-                            if about_user.get(0).get(7) {
+                            if about_user.get(0)?.get(7) {
                                 // The review is about a person with a private profile
                                 continue;
                             }
@@ -283,7 +291,7 @@ pub fn get_reviews(conn: &Connection, cookies: &mut Cookies) -> Option<Vec<Revie
                                 String::new(),
                             ]
                         } else {
-                            let by_user = by_user.get(0);
+                            let by_user = by_user.get(0)?;
                             [
                                 by_user.get::<_, i32>(0).to_string(),
                                 by_user.get(1),
@@ -303,7 +311,7 @@ pub fn get_reviews(conn: &Connection, cookies: &mut Cookies) -> Option<Vec<Revie
 }
 
 pub fn update_profile(
-    conn: &Connection,
+    conn: &mut Client,
     update_profile_details: Form<UpdateProfileDetails>,
     cookies: &mut Cookies,
 ) -> String {
@@ -314,14 +322,14 @@ pub fn update_profile(
             let rows = conn
                 .query("SELECT * FROM users WHERE name = $1", &[&name.value()])
                 .unwrap();
-            let password: String = rows.get(0).get(3);
+            let password: String = rows.get(0).unwrap().get(3);
 
             if password_hash.value() == password.trim() {
                 // The user is signed in
                 let password_hash: String = if update_profile_details.new_password == "" {
-                    rows.get(0).get(3)
+                    rows.get(0).unwrap().get(3)
                 } else {
-                    let salt: i64 = rows.get(0).get(4);
+                    let salt: i64 = rows.get(0).unwrap().get(4);
                     if !verify(
                         &format!("{}{}", salt, update_profile_details.old_password),
                         password.trim(),
@@ -351,7 +359,7 @@ pub fn update_profile(
                         &update_profile_details.email,
                         &update_profile_details.profile_pic,
                         &update_profile_details.private,
-                        &rows.get(0).get::<_, i32>(0),
+                        &rows.get(0).unwrap().get::<_, i32>(0),
                     ],
                 ) {
                     Ok(_) => {
